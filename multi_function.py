@@ -92,7 +92,7 @@ def pulse_amp(time, arguments):
     pulse_average_time = arguments['pulse_average_time']
 
     delayed_time = time - pulse_delay
-    result = pulse_amp * np.cos(2 * np.pi * pulse_frequency * delayed_time) * np.exp(
+    result = pulse_amp * np.cos(pulse_frequency * delayed_time) * np.exp(
         -(delayed_time ** 2) / (pulse_average_time ** 2))
 
     return result
@@ -129,10 +129,8 @@ def total_hamiltonian(time, wavefunction_in, arguments):
     pulse(time, wavefunction_in, buffer_wavefunction, arguments)
     # print('after pulse = ',buffer_wavefunction)
 
-    buffer_wavefunction = imaginary(buffer_wavefunction)
-    # print('after imaginary = ',buffer_wavefunction)
-
-    buffer_wavefunction = normalization(buffer_wavefunction)
+    #buffer_wavefunction = normalization(buffer_wavefunction)
+    #print('after norm = ',buffer_wavefunction)
 
     return buffer_wavefunction
 
@@ -163,16 +161,12 @@ def td_schrodinger(si_arguments, arguments):
         # print('before runge = ',wavefunction)
         wavefunction = runge_kutta.runge_kutta(time, wavefunction, total_hamiltonian, arguments, log)
         # print('before Norm = ',wavefunction)
-        wavefunction = normalization(wavefunction)
-        # print('after Norm = ',wavefunction)
+        #wavefunction = normalization(wavefunction)
+        #print('after Norm = ',wavefunction)
         if i_time % record_integer == 0:
             time_list.append(i_time * si_dt)
             pulse_list.append(pulse_amp(time, arguments))
             result_list.append(wave_to_population(wavefunction))
-        if i_time == -1:
-            log = True
-        else:
-            log = False
 
     return time_list, pulse_list, result_list
 

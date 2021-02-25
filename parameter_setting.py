@@ -1,4 +1,4 @@
-
+import numpy as np
 def argv_to_parameter(argv, parameter):
     parameter['number_of_processes'] = int(argv[1])
 
@@ -59,5 +59,5 @@ class si_to_au:
         return au
 
     def frequency(self, THz):# 1THz = 0.001 / fs = 0.001 * 0.02418884326 / au
-        freq = THz * 0.001 * 0.0241888436
+        freq = 2 * np.pi * THz * 0.001 * 0.0241888436
         return freq

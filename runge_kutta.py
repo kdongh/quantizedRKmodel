@@ -16,4 +16,5 @@ def runge_kutta(time, initial_value, function, arguments, log):
         print('k2 = ',k2)
         print('k3 = ',k3)
         print('k4 = ',k4)
+        print('result = ',result)
     return result

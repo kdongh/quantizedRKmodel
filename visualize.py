@@ -29,5 +29,6 @@ class visualize:
 
         plt.legend()
         plt.title(title)
+        plt.ylim([-0.2,1.2])
         plt.savefig(str(title) + '.png')
         #plt.show()
