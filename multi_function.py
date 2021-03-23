@@ -172,6 +172,7 @@ def td_schrodinger(si_arguments, arguments):
         wavefunction = normalization(wavefunction)
         #print('after Norm = ',wavefunction)
         if i_time % record_integer == 0:
+            print(i_time, ' / ', total_number_of_time_integer//10)
             time_list.append(i_time * si_dt)
             pulse_list.append(np.real(pulse_amp(time, arguments)))
             result_list.append(wave_to_population(wavefunction))
