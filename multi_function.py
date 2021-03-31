@@ -57,7 +57,7 @@ def particle_energy(start_int, end_int, wavefunction_in, wavefunction_out, parti
             wavefunction_out[0] += -caliblation * wavefunction_in[0]
 
 
-def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_out, particle_frequency):
+def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_out, hopping_t):
     '''
     hopping energy return to wavefunction_out with hbar = 1
     :param start_int: int
@@ -68,7 +68,7 @@ def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_o
     :param particle_frequency: float
     :return:
     '''
-    hopping_energy = - particle_frequency / 4
+    hopping_energy = hopping_t
     for i_site in range(start_int, end_int):
         if i_site != 0:
             if i_site == 1:  # left boundary hopping
@@ -129,10 +129,11 @@ def checking_norm(wavefunction):
 def total_hamiltonian(time, wavefunction_in, arguments):
     number_of_sites = arguments['number_of_sites']
     particle_frequency = arguments['particle_frequency']
+    hopping_t = arguments['hopping_t']
     buffer_wavefunction = np.zeros(number_of_sites + 1, dtype=complex)
     particle_energy(0, number_of_sites + 1, wavefunction_in, buffer_wavefunction, particle_frequency)
     # print('after energy = ',buffer_wavefunction)
-    hopping(0, number_of_sites + 1, number_of_sites, wavefunction_in, buffer_wavefunction, particle_frequency)
+    hopping(0, number_of_sites + 1, number_of_sites, wavefunction_in, buffer_wavefunction, hopping_t)
     pulse(time, wavefunction_in, buffer_wavefunction, arguments)
     # print('after pulse = ',buffer_wavefunction)
 

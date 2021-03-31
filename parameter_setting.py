@@ -14,11 +14,12 @@ def argv_to_parameter(argv, parameter):
     parameter['g_acceleration'] = 9.764 # m/s^2
     '''
     parameter['particle_frequency'] = float(argv[5])# THz
+    parameter['hopping_t'] = float(argv[6])# THz
 
-    parameter['pulse_amp'] = float(argv[6])
-    parameter['pulse_frequency'] = float(argv[7])# THz
-    parameter['pulse_delay_time'] = float(argv[8])# fs
-    parameter['pulse_average_time'] = float(argv[9])# fs
+    parameter['pulse_amp'] = float(argv[7])
+    parameter['pulse_frequency'] = float(argv[8])# THz
+    parameter['pulse_delay_time'] = float(argv[9])# fs
+    parameter['pulse_average_time'] = float(argv[10])# fs
 
 
 class si_to_au:
@@ -36,6 +37,7 @@ class si_to_au:
         #au['torsion_constant'] = self.energy_meV(si['torsion_constant'])
 
         au['particle_frequency'] = self.frequency(si['particle_frequency'])
+        au['hopping_t'] = self.frequency(si['hopping_t'])
 
         au['pulse_amp'] = si['pulse_amp']
         au['pulse_frequency'] = self.frequency(si['pulse_frequency'])

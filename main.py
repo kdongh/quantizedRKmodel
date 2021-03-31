@@ -22,6 +22,7 @@ if __name__ == '__main__':
         parameter_si['time_gap'] = 0.005
 
         parameter_si['particle_frequency'] = 3
+        parameter_si['hopping_t'] = 3
 
         parameter_si['pulse_amp'] = 0.00001
         parameter_si['pulse_frequency'] = 1
