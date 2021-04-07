@@ -1,5 +1,6 @@
 import multiprocessing as multi
 import numpy as np
+import csv
 
 import runge_kutta
 
@@ -23,6 +24,14 @@ def wave_to_population(wavefunction):
 
     for i in range(len(wavefunction)):
         result.append(np.abs(wavefunction[i]))
+
+    return result
+
+def wave_to_real(wavefunction):
+    result = []
+
+    for i in range(len(wavefunction)):
+        result.append(np.real(wavefunction[i]))
 
     return result
 
@@ -143,7 +152,7 @@ def total_hamiltonian(time, wavefunction_in, arguments):
     return buffer_wavefunction
 
 
-def td_schrodinger(si_arguments, arguments):
+def td_schrodinger(si_arguments, arguments, outfile_name='none.csv', csv_out=False):
     si_dt = si_arguments['time_gap']
 
     record_integer = 0.1 / si_dt
@@ -165,6 +174,11 @@ def td_schrodinger(si_arguments, arguments):
     norm_list = []
     log = False
 
+    if csv_out:
+        out_file_name = outfile_name+'.csv'
+        out_file = open(out_file_name,'w',newline='')
+        out_writer = csv.writer(out_file)
+
     for i_time in range(total_number_of_time_integer):
         time = i_time * dt
         # print('before runge = ',wavefunction)
@@ -173,12 +187,21 @@ def td_schrodinger(si_arguments, arguments):
         wavefunction = normalization(wavefunction)
         #print('after Norm = ',wavefunction)
         if i_time % record_integer == 0:
-            print(i_time, ' / ', total_number_of_time_integer//10)
+            print(i_time, ' / ', total_number_of_time_integer)
             time_list.append(i_time * si_dt)
-            pulse_list.append(np.real(pulse_amp(time, arguments)))
-            result_list.append(wave_to_population(wavefunction))
+            pulse_result = np.real(pulse_amp(time, arguments))
+            pulse_list.append(pulse_result)
+            #population_result = wave_to_population(wavefunction)
+            real_result = wave_to_real(wavefunction)
+            #result_list.append(population_result)
             norm_list.append(checking_norm(wavefunction))
+            if csv_out:
+                real_result.insert(0,pulse_result)
+                real_result.insert(0,i_time*si_dt)
+                out_writer.writerow(real_result)
 
+    if csv_out:
+        out_file.close()
     return time_list, pulse_list, result_list, norm_list
 
 
