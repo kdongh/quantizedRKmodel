@@ -61,9 +61,9 @@ def particle_energy(start_int, end_int, wavefunction_in, wavefunction_out, parti
     caliblation = 1 / 2
     for i_site in range(start_int, end_int):
         if i_site:
-            wavefunction_out[i_site] += (particle_frequency + caliblation) * wavefunction_in[i_site]
+            wavefunction_out[i_site] += particle_frequency * wavefunction_in[i_site]
             # print(i_site,wavefunction_out[i_site])
-        wavefunction_out[i_site] += caliblation * wavefunction_in[i_site]
+        wavefunction_out[i_site] += particle_frequency * caliblation * wavefunction_in[i_site]
 
 
 def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_out, hopping_t):
@@ -166,7 +166,7 @@ def total_hamiltonian(time, wavefunction_in, arguments, step_pulse):
 def td_schrodinger(si_arguments, arguments, step_pulse=False, outfile_name='none.csv', csv_out=False):
     si_dt = si_arguments['time_gap']
 
-    record_integer = 0.1 / si_dt
+    record_integer = 0.5 / si_dt
 
     end_time = arguments['time_end']
     dt = arguments['time_gap']

@@ -10,7 +10,7 @@ parameter_au = {}
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 11:
+    if len(sys.argv) != 12:
         print("Less argument error")
         sys.exit()
 
