@@ -20,6 +20,7 @@ def argv_to_parameter(argv, parameter):
     parameter['pulse_frequency'] = float(argv[8])# THz
     parameter['pulse_delay_time'] = float(argv[9])# fs
     parameter['pulse_average_time'] = float(argv[10])# fs
+    parameter['pulse_length'] = float(argv[11])# fs
 
 
 class si_to_au:
@@ -43,6 +44,7 @@ class si_to_au:
         au['pulse_frequency'] = self.frequency(si['pulse_frequency'])
         au['pulse_delay_time'] = self.time_fs(si['pulse_delay_time'])
         au['pulse_average_time'] = self.time_fs(si['pulse_average_time'])
+        au['pulse_length'] = self.time_fs(si['pulse_length'])
 
     def energy_meV(self, meV):# 1au = 27.211386245 eV
         au = meV / 27211.386245

@@ -15,6 +15,9 @@ if __name__ == '__main__':
         sys.exit()
 
     parameter_setting.argv_to_parameter(sys.argv, parameter_si)
+    step_pulse_bool = False
+    if parameter_si['pulse_average_time'] > 100000:
+        step_pulse_bool = True
     if False:
         parameter_si['number_of_processes'] = 1
         parameter_si['number_of_sites'] = 20
@@ -36,7 +39,7 @@ if __name__ == '__main__':
     plot_name = str(parameter_si['pulse_average_time'])+'_'+str(parameter_si['pulse_amp']) + '_' + str(parameter_si['pulse_frequency'])
     parameter_setting.si_to_au(parameter_si, parameter_au)
     #visualize.visualize(parameter_si, parameter_au, plot_name)
-    multi_function.td_schrodinger(parameter_si,parameter_au,plot_name,True)
+    multi_function.td_schrodinger(parameter_si,parameter_au,step_pulse=step_pulse_bool,outfile_name=plot_name,csv_out=True)
 
 
     print('End ', parameter_si)

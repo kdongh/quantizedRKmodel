@@ -27,6 +27,7 @@ def wave_to_population(wavefunction):
 
     return result
 
+
 def wave_to_real(wavefunction):
     result = []
 
@@ -57,13 +58,12 @@ def particle_energy(start_int, end_int, wavefunction_in, wavefunction_out, parti
     :param particle_frequency: float
     :return: float
     '''
-    caliblation = 0
+    caliblation = 1 / 2
     for i_site in range(start_int, end_int):
         if i_site:
-            wavefunction_out[i_site] += -(particle_frequency + caliblation) * wavefunction_in[i_site]
-            #print(i_site,wavefunction_out[i_site])
-        else:
-            wavefunction_out[0] += -caliblation * wavefunction_in[0]
+            wavefunction_out[i_site] += (particle_frequency + caliblation) * wavefunction_in[i_site]
+            # print(i_site,wavefunction_out[i_site])
+        wavefunction_out[i_site] += caliblation * wavefunction_in[i_site]
 
 
 def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_out, hopping_t):
@@ -77,7 +77,7 @@ def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_o
     :param particle_frequency: float
     :return:
     '''
-    hopping_energy = hopping_t
+    hopping_energy = -hopping_t
     for i_site in range(start_int, end_int):
         if i_site != 0:
             if i_site == 1:  # left boundary hopping
@@ -86,7 +86,7 @@ def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_o
                 wavefunction_out[2] += energy  # to right
             elif i_site == number_of_sites:  # right boundary hopping
                 energy = hopping_energy * wavefunction_in[number_of_sites]
-                wavefunction_out[number_of_sites-1] += energy  # to left
+                wavefunction_out[number_of_sites - 1] += energy  # to left
                 wavefunction_out[1] += energy  # to right
             else:
                 energy = hopping_energy * wavefunction_in[i_site]
@@ -94,21 +94,31 @@ def hopping(start_int, end_int, number_of_sites, wavefunction_in, wavefunction_o
                 wavefunction_out[i_site + 1] += energy
 
 
-def pulse_amp(time, arguments):
+def pulse_amp(time, arguments, step_pulse):
     pulse_amp = arguments['pulse_amp']
     pulse_frequency = arguments['pulse_frequency']
     pulse_delay = arguments['pulse_delay_time']
     pulse_average_time = arguments['pulse_average_time']
+    pulse_length = arguments['pulse_length']
 
     delayed_time = time - pulse_delay
-    result = pulse_amp * np.exp(1j * pulse_frequency * delayed_time) * np.exp(
-        -(delayed_time ** 2) / (pulse_average_time ** 2))
+    pulse_start = pulse_delay - pulse_length/2.0
+    pulse_end = pulse_delay + pulse_length/2.0
+    if step_pulse:
+        if time < pulse_end or time > pulse_start:
+            result = pulse_amp * np.exp(1j * pulse_frequency * delayed_time) * np.exp(
+            -(delayed_time ** 2) / (pulse_average_time ** 2))
+        else:
+            result = 0
+    else:
+        result = pulse_amp * np.exp(1j * pulse_frequency * delayed_time) * np.exp(
+            -(delayed_time ** 2) / (pulse_average_time ** 2))
 
     return result
 
 
-def pulse(time, wavefunction_in, wavefunction_out, arguments):
-    amp = pulse_amp(time, arguments)
+def pulse(time, wavefunction_in, wavefunction_out, arguments, step_pulse):
+    amp = pulse_amp(time, arguments, step_pulse)
 
     wavefunction_out[1] += amp * wavefunction_in[0]
     wavefunction_out[0] += np.conjugate(amp) * wavefunction_in[1]
@@ -127,6 +137,7 @@ def normalization(wavefunction):
         buff = 1
     return wavefunction / buff
 
+
 def checking_norm(wavefunction):
     buff = 0
     for i in range(len(wavefunction)):
@@ -135,7 +146,7 @@ def checking_norm(wavefunction):
     return buff
 
 
-def total_hamiltonian(time, wavefunction_in, arguments):
+def total_hamiltonian(time, wavefunction_in, arguments, step_pulse):
     number_of_sites = arguments['number_of_sites']
     particle_frequency = arguments['particle_frequency']
     hopping_t = arguments['hopping_t']
@@ -143,16 +154,16 @@ def total_hamiltonian(time, wavefunction_in, arguments):
     particle_energy(0, number_of_sites + 1, wavefunction_in, buffer_wavefunction, particle_frequency)
     # print('after energy = ',buffer_wavefunction)
     hopping(0, number_of_sites + 1, number_of_sites, wavefunction_in, buffer_wavefunction, hopping_t)
-    pulse(time, wavefunction_in, buffer_wavefunction, arguments)
+    pulse(time, wavefunction_in, buffer_wavefunction, arguments, step_pulse)
     # print('after pulse = ',buffer_wavefunction)
 
-    #buffer_wavefunction = normalization(buffer_wavefunction)
-    #print('after norm = ',buffer_wavefunction)
+    # buffer_wavefunction = normalization(buffer_wavefunction)
+    # print('after norm = ',buffer_wavefunction)
 
     return buffer_wavefunction
 
 
-def td_schrodinger(si_arguments, arguments, outfile_name='none.csv', csv_out=False):
+def td_schrodinger(si_arguments, arguments, step_pulse=False, outfile_name='none.csv', csv_out=False):
     si_dt = si_arguments['time_gap']
 
     record_integer = 0.1 / si_dt
@@ -175,29 +186,29 @@ def td_schrodinger(si_arguments, arguments, outfile_name='none.csv', csv_out=Fal
     log = False
 
     if csv_out:
-        out_file_name = outfile_name+'.csv'
-        out_file = open(out_file_name,'w',newline='')
+        out_file_name = outfile_name + '.csv'
+        out_file = open(out_file_name, 'w', newline='')
         out_writer = csv.writer(out_file)
 
     for i_time in range(total_number_of_time_integer):
         time = i_time * dt
         # print('before runge = ',wavefunction)
-        wavefunction = runge_kutta.runge_kutta(time, wavefunction, total_hamiltonian, arguments, log)
+        wavefunction = runge_kutta.runge_kutta(time, wavefunction, total_hamiltonian, arguments, log, step_pulse)
         # print('before Norm = ',wavefunction)
         wavefunction = normalization(wavefunction)
-        #print('after Norm = ',wavefunction)
+        # print('after Norm = ',wavefunction)
         if i_time % record_integer == 0:
             print(i_time, ' / ', total_number_of_time_integer)
             time_list.append(i_time * si_dt)
-            pulse_result = np.real(pulse_amp(time, arguments))
+            pulse_result = np.real(pulse_amp(time, arguments, step_pulse))
             pulse_list.append(pulse_result)
-            #population_result = wave_to_population(wavefunction)
+            # population_result = wave_to_population(wavefunction)
             real_result = wave_to_real(wavefunction)
-            #result_list.append(population_result)
+            # result_list.append(population_result)
             norm_list.append(checking_norm(wavefunction))
             if csv_out:
-                real_result.insert(0,pulse_result)
-                real_result.insert(0,i_time*si_dt)
+                real_result.insert(0, pulse_result)
+                real_result.insert(0, i_time * si_dt)
                 out_writer.writerow(real_result)
 
     if csv_out:
